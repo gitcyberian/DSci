@@ -20,8 +20,6 @@ dl <- tempfile()
 download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip", dl)
 
 data <- fread(text = gsub(";", "\t", readLines(unzip(dl, "bank-additional/bank-additional-full.csv"))), stringsAsFactors = TRUE)
-#setwd('C:\\vivek\\Rcourse\\datascience\\Capstone2\\bank-deposit\\')
-#data <- fread(text = gsub(";", "\t", readLines(con=file('bank-additional-full.csv'))), stringsAsFactors = TRUE)
 #We read all character fields as factors since the dataset description mentions they are all categorical.
 
 #Let's first change the target y to 0/1 instead of no/yes
