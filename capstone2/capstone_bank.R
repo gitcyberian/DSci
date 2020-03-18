@@ -777,33 +777,3 @@ res %>% knitr::kable()
 
 #Final summary of all the models trained along with the final evaluation on the validation set.
 model_results %>% knitr::kable()
-
-
-
-
-
-#Let's try a random forest using Rborist now. However, this will be very slow due to the size of the dataset.
-#Instead, let's use PCA to get the 2-3 principal component vectors and train the random forest model on that.
-#We will pick only the numerical features for this and try.
-#cat_features <- c('contact', 'month', 'day_of_week', 'poutcome')
-#train_pca <- dummy.data.frame(select(train, contact, month, day_of_week, campaign, poutcome, emp.var.rate, euribor3m, nr.employed, cons.price.idx, cons.conf.idx), names=cat_features)
-#pca <- prcomp(train_pca, scale.=T)
-pca <- prcomp(select(train, campaign, emp.var.rate, euribor3m, nr.employed, cons.price.idx, cons.conf.idx), scale.=T)
-summary(pca)
-train_reduced <- pca$x[,1:3]
-rf_model <- train(x=train_reduced, y=train$y, method='rf')
-test_reduced <- select(test, campaign, emp.var.rate, euribor3m, nr.employed, cons.price.idx, cons.conf.idx)
-test_reduced <- sweep(as.matrix(test_reduced), 2, colMeans(as.matrix(test_reduced))) %*% pca$rotation
-test_reduced <- test_reduced[,1:3]
-
-#rf_model <- train(y~contact+month+day_of_week+campaign+poutcome+emp.var.rate+euribor3m+nr.employed+cons.price.idx+cons.conf.idx, data=train, method='Rborist')
-pred <- predict(rf_model, newdata=test_reduced)
-pca_rf_acc <- mean(pred==test$y)
-pca_rf_acc#0.8872556
-(caret::confusionMatrix(data=pred, reference=test$y))$byClass[c('Sensitivity', 'Specificity', 'Balanced Accuracy')]
-
-rf_model <- train(y~contact+month+day_of_week, data=train, method='rf')
-pred <- predict(rf_model, newdata=test)
-rf_acc <- mean(pred==test$y)
-rf_acc
-(caret::confusionMatrix(data=pred, reference=test$y))$byClass[c('Sensitivity', 'Specificity', 'Balanced Accuracy')]
